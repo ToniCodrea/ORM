@@ -82,8 +82,60 @@ abstract class AbstractRepository implements RepositoryInterface
         $stm->bindParam(1, $id, PDO::PARAM_INT);
         $stm->execute();
         $row = $stm->fetch();
-        var_dump($row);
+        //var_dump($row);
 
         return $this->hydrator->hydrate($this->entityName, $row);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findOneBy(array $filters): ?EntityInterface
+    {
+        $sql = 'SELECT * FROM '.$this->getTableName().' WHERE ';
+        foreach ($filters as $fieldName => $value) {
+            $sql .= $fieldName .' = :' . $fieldName . 'AND ';
+        }
+
+        $sql = substr($sql, 0, -5);
+        $stm = $this->pdo->prepare($sql);
+
+        foreach ($filters as $fieldName => $value) {
+            $stm->bindParam(':' . $fieldName, $value);
+        }
+        
+        $stm->execute();
+        $row = $stm->fetch();
+
+        return $this->hydrator->hydrate($this->entityName, $row);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findBy(array $filters, array $sorts, int $from, int $size): array
+    {
+        // TODO: Implement findBy() method.
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function insertOnDuplicateKeyUpdate(EntityInterface $entity): bool
+    {
+        $sql = 'INSERT INTO '.$this->getTableName().' ';
+        $request = new ReflectionClass($entity);
+        $properties = $request->getProperties();
+        foreach ($properties as $property) {
+            $property->setAccessible(True);
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function delete(EntityInterface $entity): bool
+    {
+        // TODO: Implement delete() method.
     }
 }

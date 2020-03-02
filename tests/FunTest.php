@@ -53,10 +53,10 @@ class FunTest extends TestCase
     public function testHydrateUser(): void {
         $obj = $this->userRepo->find(3);
 
+        $this->assertEquals(User::class, get_class($obj));
         $this->assertEquals(3, $obj->getId());
         $this->assertEquals('abc', $obj->getEmail());
         $this->assertEquals('abc', $obj->getName());
-        $this->assertEquals(User::class, get_class($obj));
     }
 
     public function testCreateUser(): void
@@ -65,6 +65,7 @@ class FunTest extends TestCase
         $user->setName('ciwawa');
         $user->setEmail('email');
         $this->repoManager->register($user);
+
         $result = $user->save();
 
         $this->assertEquals(true, $result);
