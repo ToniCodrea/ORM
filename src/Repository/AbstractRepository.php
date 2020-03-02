@@ -3,8 +3,10 @@
 namespace ReallyOrm\Repository;
 
 use PDO;
+use ReallyOrm\Entity\AbstractEntity;
 use ReallyOrm\Entity\EntityInterface;
 use ReallyOrm\Hydrator\HydratorInterface;
+use ReflectionClass;
 
 /**
  * Class AbstractRepository.
