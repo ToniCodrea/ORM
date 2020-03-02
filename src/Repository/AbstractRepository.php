@@ -65,4 +65,25 @@ abstract class AbstractRepository implements RepositoryInterface
     {
         return $this->entityName;
     }
+
+    public function getTableName() : string
+    {
+        $name = array();
+        preg_match('/.*\\\\(.+)$/', $this->entityName, $name);
+
+        return strtolower($name[1]);
+    }
+
+    public function find(int $id): ?EntityInterface
+    {
+
+        $sql = 'SELECT * FROM '.$this->getTableName().' WHERE id = ?';
+        $stm = $this->pdo->prepare($sql);
+        $stm->bindParam(1, $id, PDO::PARAM_INT);
+        $stm->execute();
+        $row = $stm->fetch();
+        var_dump($row);
+
+        return $this->hydrator->hydrate($this->entityName, $row);
+    }
 }

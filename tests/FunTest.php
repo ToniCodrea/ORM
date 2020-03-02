@@ -50,6 +50,14 @@ class FunTest extends TestCase
         $this->repoManager = new RepositoryManager([$this->userRepo]);
     }
 
+    public function testHydrateUser(): void {
+        $obj = $this->userRepo->find(3);
+
+        $this->assertEquals(3, $obj->getId());
+        $this->assertEquals('abc', $obj->getEmail());
+        $this->assertEquals('abc', $obj->getName());
+        $this->assertEquals(User::class, get_class($obj));
+    }
 
     public function testCreateUser(): void
     {
@@ -64,7 +72,7 @@ class FunTest extends TestCase
 
     public function testUpdateUser(): void
     {
-        $user = $this->userRepo->find(1);
+        $user = $this->userRepo->find(3);
         $user->setEmail('other email');
 
         //echo $user->getId();
@@ -78,8 +86,8 @@ class FunTest extends TestCase
     public function testFind(): void
     {
         /** @var User $user */
-        $user = $this->userRepo->find(1);
+        $user = $this->userRepo->find(3);
 
-        $this->assertEquals(1, $user->getId());
+        $this->assertEquals(3, $user->getId());
     }
 }
