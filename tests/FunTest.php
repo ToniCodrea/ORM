@@ -72,7 +72,7 @@ class FunTest extends TestCase
 
         $this->assertEquals(true, $result);
     }
-
+    */
     public function testFind(): void
     {
         //@var User $user
@@ -80,7 +80,7 @@ class FunTest extends TestCase
 
         $this->assertEquals(3, $user->getId());
     }
-    */
+
     public function testDeleteUser(): void {
         $user = $this->userRepo->find(20);
         $this->repoManager->register($user);

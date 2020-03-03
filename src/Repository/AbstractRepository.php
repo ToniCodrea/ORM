@@ -98,6 +98,7 @@ abstract class AbstractRepository implements RepositoryInterface
         }
 
         $sql = substr($sql, 0, -5);
+        $sql .= ' LIMIT 1';
         $stm = $this->pdo->prepare($sql);
         foreach ($filters as $fieldName => &$value) {
             $stm->bindParam(':' . $fieldName, $value);
@@ -162,19 +163,11 @@ abstract class AbstractRepository implements RepositoryInterface
      */
     public function delete(EntityInterface $entity): bool
     {
-        $sql = 'DELETE FROM '.$this->getTableName().' WHERE ? = ?';
         $uid = $this->hydrator->getId($entity);
+        $sql = 'DELETE FROM '.$this->getTableName().' WHERE :UID = :UID_VALUE';
         $stm = $this->pdo->prepare($sql);
-        $uidName = "";
-        $uidValue = "";
-        foreach ($uid as $key => $value) {
-            $uidName = $key;
-            $uidValue = $value;
-        }
-        var_dump($uidValue);
-        var_dump($uidName);
-        $stm->bindParam(1, $uidName);
-        $stm->bindParam(2, $uidValue);
+        $stm->bindParam(':UID', $uid[0]);
+        $stm->bindParam(':UID_VALUE', $uid[1]);
 
         return $stm->execute();
     }
