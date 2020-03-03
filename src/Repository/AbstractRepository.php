@@ -83,8 +83,11 @@ abstract class AbstractRepository implements RepositoryInterface
         $stm->execute();
         $row = $stm->fetch();
         //var_dump($row);
+        if ($row) {
+            return $this->hydrator->hydrate($this->entityName, $row);
+        }
 
-        return $this->hydrator->hydrate($this->entityName, $row);
+        return null;
     }
 
     /**
@@ -115,7 +118,46 @@ abstract class AbstractRepository implements RepositoryInterface
      */
     public function findBy(array $filters, array $sorts, int $from, int $size): array
     {
-        // TODO: Implement findBy() method.
+        $sql = 'SELECT * FROM '.$this->getTableName().' WHERE ';
+        foreach ($filters as $fieldName => $value) {
+            $sql .= $fieldName .' = :' . $fieldName . ' AND ';
+        }
+
+        $sql = substr($sql, 0, -5);
+        $sql .= ' ORDER BY ';
+
+        foreach ($sorts as $fieldName => $direction) {
+            $dir = 'ASC';
+            if (preg_match('/DESC/', $direction)) {
+                $dir = 'DESC';
+            }
+            $sql.= $fieldName . ' ' . $dir;
+        }
+
+        $sql = substr($sql, 0, -3);
+        $sql .= ' LIMIT :size OFFSET :from';
+
+        //var_dump($sql);
+
+        $stm = $this->pdo->prepare($sql);
+
+        foreach ($filters as $fieldName => &$value) {
+            $stm->bindParam(':' . $fieldName, $value);
+        }
+
+        $stm->bindParam(':size', $size);
+        $stm->bindParam(':from', $from);
+
+        $stm->execute();
+        $data = $stm->fetchAll();
+        $entities = array();
+
+        foreach ($data as $datum) {
+            $entities[] = $this->hydrator->hydrate($this->entityName, $datum);
+        }
+
+        return $entities;
+
     }
 
     /**
@@ -164,9 +206,8 @@ abstract class AbstractRepository implements RepositoryInterface
     public function delete(EntityInterface $entity): bool
     {
         $uid = $this->hydrator->getId($entity);
-        $sql = 'DELETE FROM '.$this->getTableName().' WHERE :UID = :UID_VALUE';
+        $sql = 'DELETE FROM '.$this->getTableName().' WHERE '.$uid[0].' = :UID_VALUE';
         $stm = $this->pdo->prepare($sql);
-        $stm->bindParam(':UID', $uid[0]);
         $stm->bindParam(':UID_VALUE', $uid[1]);
 
         return $stm->execute();

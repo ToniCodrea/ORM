@@ -73,13 +73,14 @@ class FunTest extends TestCase
         $this->assertEquals(true, $result);
     }
     */
-    public function testFind(): void
+    /*public function testFind(): void
     {
         //@var User $user
-        $user = $this->userRepo->findOneBy(['name' => 'ciwawa', 'email' => 'other email', 'id' => 3]);
+        $users = $this->userRepo->findBy(['name' => 'emaila', 'email' => 'emaila'], ['name' => 'ASC'], 1, 2);
 
-        $this->assertEquals(3, $user->getId());
-    }
+        var_dump($users);
+        $this->assertEquals(1, $users[0]->getId());
+    } */
 
     public function testDeleteUser(): void {
         $user = $this->userRepo->find(20);

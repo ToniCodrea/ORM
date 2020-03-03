@@ -70,6 +70,7 @@ class Hydrator implements HydratorInterface
         $properties = $reflection->getProperties();
         foreach ($properties as $property) {
             $comment = $property->getDocComment();
+            //
             if (preg_match('/\@UID\s/m', $comment) === 1) {
                 $property->setAccessible(true);
                 preg_match('/\@ORM\s(\w+)/m', $comment, $match);
