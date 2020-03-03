@@ -20,7 +20,8 @@ class Hydrator implements HydratorInterface
         foreach ($properties as $property) {
             $comment = $property->getDocComment();
             //var_dump($comment);
-            if(preg_match('/\@ORM\s(\w+)/m', $comment, $match) === 1) {
+            //var_dump(preg_match('/\@UID\s/m', $comment, $match));
+            if (preg_match('/\@ORM\s(\w+)/m', $comment, $match) === 1) {
                 $arr[] = $match[1];
             }
         }
@@ -37,6 +38,7 @@ class Hydrator implements HydratorInterface
         $entity = new $className();
         $reflection = new ReflectionClass($entity);
         $matches = $this->getAttributes($entity);
+        //var_dump($matches);
         foreach ($matches as $match) {
             $property = $reflection->getProperty($match);
             $property->setAccessible(true);
@@ -54,13 +56,26 @@ class Hydrator implements HydratorInterface
         $matches = $this->getAttributes($object);
         $data = array();
         $reflection = new ReflectionClass($object);
-        foreach ($matches as $match) {
+        foreach ($matches as $key => $match) {
             $property = $reflection->getProperty($match);
             $property->setAccessible(true);
-            $data[$match] = $property->getValue();
+            $data[$match] = $property->getValue($object);
         }
-
+        //var_dump($data);
         return $data;
+    }
+
+    public function getId(EntityInterface $entity) : array {
+        $reflection = new ReflectionClass($entity);
+        $properties = $reflection->getProperties();
+        foreach ($properties as $property) {
+            $comment = $property->getDocComment();
+            if (preg_match('/\@UID\s/m', $comment) === 1) {
+                $property->setAccessible(true);
+                preg_match('/\@ORM\s(\w+)/m', $comment, $match);
+                return [$match[1] => $property->getValue($entity)];
+            }
+        }
     }
 
     /**

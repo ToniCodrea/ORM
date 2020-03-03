@@ -18,6 +18,7 @@ class User extends AbstractEntity
     private $email;
     /**
      * @var int
+     * @UID
      * @ORM id
      */
     private $id;
@@ -32,7 +33,8 @@ class User extends AbstractEntity
         $this->email = $email;
     }
 
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 

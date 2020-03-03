@@ -50,22 +50,13 @@ class FunTest extends TestCase
         $this->repoManager = new RepositoryManager([$this->userRepo]);
     }
 
-    public function testHydrateUser(): void {
-        $obj = $this->userRepo->find(3);
-
-        $this->assertEquals(User::class, get_class($obj));
-        $this->assertEquals(3, $obj->getId());
-        $this->assertEquals('abc', $obj->getEmail());
-        $this->assertEquals('abc', $obj->getName());
-    }
-
+    /*
     public function testCreateUser(): void
     {
         $user = new User();
         $user->setName('ciwawa');
-        $user->setEmail('email');
+        $user->setEmail('emaila');
         $this->repoManager->register($user);
-
         $result = $user->save();
 
         $this->assertEquals(true, $result);
@@ -75,9 +66,7 @@ class FunTest extends TestCase
     {
         $user = $this->userRepo->find(3);
         $user->setEmail('other email');
-
-        //echo $user->getId();
-        //echo $user->getEmail();
+        $this->repoManager->register($user);
 
         $result = $user->save();
 
@@ -86,9 +75,17 @@ class FunTest extends TestCase
 
     public function testFind(): void
     {
-        /** @var User $user */
-        $user = $this->userRepo->find(3);
+        //@var User $user
+        $user = $this->userRepo->findOneBy(['name' => 'ciwawa', 'email' => 'other email', 'id' => 3]);
 
         $this->assertEquals(3, $user->getId());
+    }
+    */
+    public function testDeleteUser(): void {
+        $user = $this->userRepo->find(20);
+        $this->repoManager->register($user);
+        $result = $this->userRepo->delete($user);
+
+        $this->assertEquals(true, $result);
     }
 }

@@ -94,19 +94,18 @@ abstract class AbstractRepository implements RepositoryInterface
     {
         $sql = 'SELECT * FROM '.$this->getTableName().' WHERE ';
         foreach ($filters as $fieldName => $value) {
-            $sql .= $fieldName .' = :' . $fieldName . 'AND ';
+            $sql .= $fieldName .' = :' . $fieldName . ' AND ';
         }
 
         $sql = substr($sql, 0, -5);
         $stm = $this->pdo->prepare($sql);
-
-        foreach ($filters as $fieldName => $value) {
+        foreach ($filters as $fieldName => &$value) {
             $stm->bindParam(':' . $fieldName, $value);
         }
-        
+        //var_dump($sql);
         $stm->execute();
         $row = $stm->fetch();
-
+        //var_dump($row);
         return $this->hydrator->hydrate($this->entityName, $row);
     }
 
@@ -123,12 +122,39 @@ abstract class AbstractRepository implements RepositoryInterface
      */
     public function insertOnDuplicateKeyUpdate(EntityInterface $entity): bool
     {
-        $sql = 'INSERT INTO '.$this->getTableName().' ';
-        $request = new ReflectionClass($entity);
-        $properties = $request->getProperties();
-        foreach ($properties as $property) {
-            $property->setAccessible(True);
+        $sql = 'INSERT INTO '.$this->getTableName().' ( ';
+        $data = $this->hydrator->extract($entity);
+        $uid = $this->hydrator->getId($entity);
+        foreach ($data as $key => $value) {
+            if ($value) {
+                $sql .= $key . ' , ';
+            }
         }
+        $sql = substr($sql, 0, -3);
+        $sql .= ' ) VALUES ( ';
+        foreach ($data as $key => $value) {
+            if ($value) {
+                $sql .= ':' . $key . ' , ';
+            }
+        }
+        $sql = substr($sql, 0, -3);
+        $sql .= ' ) ON DUPLICATE KEY UPDATE ';
+        foreach ($data as $key => $value) {
+            if ($value) {
+                $columnName = "`".$key."`" ;
+                $sql .= $columnName. ' = VALUES('.$columnName.') , ';
+            }
+        }
+        $sql = substr($sql, 0, -3);
+        //var_dump($sql);
+        $stm = $this->pdo->prepare($sql);
+        foreach ($data as $key => &$value) {
+            if ($value) {
+                $stm->bindParam(':' . $key, $value);
+            }
+        }
+
+        return $stm->execute();
     }
 
     /**
@@ -136,6 +162,20 @@ abstract class AbstractRepository implements RepositoryInterface
      */
     public function delete(EntityInterface $entity): bool
     {
-        // TODO: Implement delete() method.
+        $sql = 'DELETE FROM '.$this->getTableName().' WHERE ? = ?';
+        $uid = $this->hydrator->getId($entity);
+        $stm = $this->pdo->prepare($sql);
+        $uidName = "";
+        $uidValue = "";
+        foreach ($uid as $key => $value) {
+            $uidName = $key;
+            $uidValue = $value;
+        }
+        var_dump($uidValue);
+        var_dump($uidName);
+        $stm->bindParam(1, $uidName);
+        $stm->bindParam(2, $uidValue);
+
+        return $stm->execute();
     }
 }

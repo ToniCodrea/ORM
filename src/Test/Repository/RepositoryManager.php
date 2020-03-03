@@ -3,7 +3,6 @@
 
 namespace ReallyOrm\Test\Repository;
 
-use mysql_xdevapi\Exception;
 use ReallyOrm\Entity\EntityInterface;
 use ReallyOrm\Repository\RepositoryInterface;
 use ReallyOrm\Repository\RepositoryManagerInterface;
@@ -45,7 +44,7 @@ class RepositoryManager implements RepositoryManagerInterface
      */
     public function addRepository(RepositoryInterface $repository): RepositoryManagerInterface
     {
-        $this->repositories[get_class($repository)] = $repository;
+        $this->repositories[$repository->getEntityName()] = $repository;
         return $this;
     }
 }
