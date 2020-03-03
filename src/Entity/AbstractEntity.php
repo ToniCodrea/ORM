@@ -41,6 +41,10 @@ abstract class AbstractEntity implements EntityInterface
         return $this->repositoryManager->getRepository(get_class($this));
     }
 
+    public function getTableName() : string {
+        return  $this->getRepository()->getTableName();
+    }
+
     /**
      * Saves the current entity.
      *

@@ -4,7 +4,11 @@
 namespace ReallyOrm\Test\Repository;
 
 
-class QuizRepository
+use ReallyOrm\Entity\EntityInterface;
+use ReallyOrm\Repository\AbstractRepository;
+use ReallyOrm\Repository\RepositoryInterface;
+
+class QuizRepository extends AbstractRepository
 {
 
 }

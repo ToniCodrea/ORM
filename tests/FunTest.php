@@ -1,8 +1,10 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
+use ReallyOrm\Test\Entity\Quiz;
 use ReallyOrm\Test\Hydrator\Hydrator;
 use ReallyOrm\Test\Entity\User;
+use ReallyOrm\Test\Repository\QuizRepository;
 use ReallyOrm\Test\Repository\RepositoryManager;
 use ReallyOrm\Test\Repository\UserRepository;
 
@@ -24,6 +26,10 @@ class FunTest extends TestCase
      * @var UserRepository
      */
     private $userRepo;
+    /**
+     * @var
+     */
+    private $quizRepo;
 
     /**
      * @var RepositoryManager
@@ -45,12 +51,16 @@ class FunTest extends TestCase
         ];
 
         $this->pdo = new PDO($dsn, $config['user'], $config['pass'], $options);
-        $this->hydrator = new Hydrator();
+        $this->repoManager = new RepositoryManager();
+        $this->hydrator = new Hydrator($this->repoManager);
         $this->userRepo = new UserRepository($this->pdo, User::class, $this->hydrator);
-        $this->repoManager = new RepositoryManager([$this->userRepo]);
+        $this->quizRepo = new QuizRepository($this->pdo, Quiz::class, $this->hydrator);
+        $this->repoManager->addRepository($this->quizRepo);
+        $this->repoManager->addRepository($this->userRepo);
     }
 
 
+    /*
     public function testCreateUser(): void
     {
         $user = new User();
@@ -99,6 +109,25 @@ class FunTest extends TestCase
         $this->repoManager->register($user);
         $result = $this->userRepo->delete($user);
 
+        $this->assertEquals(true, $result);
+    } */
+    public function testCreateQuiz(): void
+    {
+        $quiz = new Quiz();
+        $quiz->setName('ciwawa');
+        $quiz->setQuestions('abcde asdas as');
+        $quiz->setAnswers('A vads bbbbbb');
+        $quiz->setGrade(10);
+        $this->repoManager->register($quiz);
+        $user = new User();
+        $user->setName('quiztest');
+        $user->setEmail('quiz');
+        $this->repoManager->register($user);
+        $user->save();
+        //var_dump($user);
+        $result = $quiz->save();
+        $quiz->setUser($user);
+        var_dump($quiz->getUser());
         $this->assertEquals(true, $result);
     }
 }

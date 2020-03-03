@@ -7,11 +7,20 @@ namespace ReallyOrm\Test\Hydrator;
 use ReallyOrm\Entity\AbstractEntity;
 use ReallyOrm\Entity\EntityInterface;
 use ReallyOrm\Hydrator\HydratorInterface;
+use ReallyOrm\Repository\RepositoryManagerInterface;
 use ReallyOrm\Test\Entity\User;
 use ReflectionClass;
 
 class Hydrator implements HydratorInterface
 {
+
+    private $repositoryManager;
+
+    public function __construct(RepositoryManagerInterface $repositoryManager)
+    {
+        $this->repositoryManager = $repositoryManager;
+    }
+
     private function getAttributes(EntityInterface $entity) : array
     {
         $reflection = new ReflectionClass($entity);
@@ -44,6 +53,7 @@ class Hydrator implements HydratorInterface
             $property->setAccessible(true);
             $property->setValue($entity, $data[$match]);
         }
+        $this->repositoryManager->register($entity);
 
         return $entity;
     }
@@ -90,7 +100,7 @@ class Hydrator implements HydratorInterface
             $comment = $property->getDocComment();
             if (preg_match('/\@UID\s/m', $comment) === 1) {
                 $property->setAccessible(true);
-                $property->setValue($id);
+                $property->setValue($entity, $id);
             }
         }
     }

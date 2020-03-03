@@ -12,13 +12,6 @@ class RepositoryManager implements RepositoryManagerInterface
 
     private $repositories;
 
-    public function __construct(array $repositories = [])
-    {
-        foreach ($repositories as $repository) {
-            $this->addRepository($repository);
-        }
-    }
-
     /**
      * @inheritDoc
      */

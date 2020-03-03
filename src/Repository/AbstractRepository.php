@@ -196,8 +196,12 @@ abstract class AbstractRepository implements RepositoryInterface
                 $stm->bindParam(':' . $key, $value);
             }
         }
+        if ($stm->execute()) {
+            $this->hydrator->hydrateId($entity, $this->pdo->lastInsertId());
+            return true;
+        }
 
-        return $stm->execute();
+        return false;
     }
 
     /**
@@ -211,5 +215,35 @@ abstract class AbstractRepository implements RepositoryInterface
         $stm->bindParam(':UID_VALUE', $uid[1]);
 
         return $stm->execute();
+    }
+
+    public function setForeignId (EntityInterface $foreign, EntityInterface $target) : bool
+    {
+        $foreign_table = $foreign->getTableName();
+        $uid_fk = $foreign->getId();
+        $uid = $this->hydrator->getId($target);
+
+        $sql = 'UPDATE '.$this->getTableName().' SET '.$foreign_table.'id = :fkID WHERE '.$uid[0].' = :entityID';
+
+        $stm = $this->pdo->prepare($sql);
+        $stm->bindParam(':fkID', $uid_fk);
+        $stm->bindParam(':entityID', $uid[1]);
+
+        return $stm->execute();
+    }
+
+    public function getForeignEntity (string $entityTable, EntityInterface $target) : ?EntityInterface
+    {
+        $thisTable = $this->getTableName();
+
+        $sql = 'SELECT * FROM '.$entityTable.' LEFT JOIN '.$thisTable.' ON '.$entityTable.'.id = '.$thisTable.'.'.$entityTable.'id WHERE '.$thisTable.'id = :targetID';
+        var_dump($sql);
+        $stm = $this->pdo->prepare($sql);
+        $stm->bindParam(':targetID', $target->getId());
+        $stm->execute();
+        $row = $stm->fetch();
+        var_dump($row);
+
+        return $this->hydrator->hydrate(get_class($entity), $row);
     }
 }
