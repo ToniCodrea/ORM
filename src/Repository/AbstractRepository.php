@@ -242,7 +242,6 @@ abstract class AbstractRepository implements RepositoryInterface
 
     public function getForeignEntity (string $className, EntityInterface $target) : ?EntityInterface
     {
-
         $entityTable = $this->getEntityTableName($className);
         $thisTable = $this->getTableName();
         $targetId = $target->getId();
@@ -255,5 +254,21 @@ abstract class AbstractRepository implements RepositoryInterface
         $row = $stm->fetch();
 
         return $this->hydrator->hydrate($className, $row);
+    }
+
+    public function getForeignEntities (string $className, EntityInterface $target) : array
+    {
+        $entityTable = $this->getEntityTableName($className);
+        $thisTable = $this->getTableName();
+        $targetId = $target->getId();
+
+        $sql = 'SELECT * FROM '.$thisTable.' RIGHT JOIN '.$entityTable.' ON '.$thisTable.'.id = '.$entityTable.'.'.$thisTable.'id WHERE '.$thisTable.'.id = :targetID';
+
+        $stm = $this->pdo->prepare($sql);
+        $stm->bindParam(':targetID', $targetId);
+        $stm->execute();
+        $row = $stm->fetchAll();
+
+        return $this->hydrator->hydrateMany($className, $row);
     }
 }

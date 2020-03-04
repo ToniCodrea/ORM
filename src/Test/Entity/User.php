@@ -48,4 +48,8 @@ class User extends AbstractEntity
         return $this->email;
     }
 
+    public function getQuizes() : array {
+        return $this->getRepository()->getForeignEntities(Quiz::class, $this);
+    }
+
 }

@@ -104,4 +104,14 @@ class Hydrator implements HydratorInterface
             }
         }
     }
+
+    public function hydrateMany(string $className, array $dataRows) :array
+    {
+        $entities = array();
+        foreach ($dataRows as $dataRow) {
+            $entities[] = $this->hydrate($className, $dataRow);
+        }
+
+        return $entities;
+    }
 }
