@@ -41,24 +41,34 @@ class Quiz extends AbstractEntity
         $this->name = $name;
     }
 
-    public function setQuestions (string $questions) {
+    public function setQuestions (string $questions)
+    {
         $this->questions = $questions;
     }
 
-    public function setAnswers (string $answers) {
+    public function setAnswers (string $answers)
+    {
         $this->answers = $answers;
     }
 
-    public function setGrade (int $grade) {
+    public function setGrade (int $grade)
+    {
         $this->grade = $grade;
     }
 
-    public function setUser (EntityInterface $user) {
+    public function setUser (EntityInterface $user)
+    {
         $this->getRepository()->setForeignId($user, $this);
     }
 
-    public function getUser () : ?EntityInterface {
-        $this->getRepository()->getForeignEntity($this, );
+    public function getUser () : ?EntityInterface
+    {
+        return $this->getRepository()->getForeignEntity('user', User::class, $this);
+    }
+
+    public function getId()
+    {
+        return $this->id;
     }
 
 

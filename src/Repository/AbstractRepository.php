@@ -232,18 +232,18 @@ abstract class AbstractRepository implements RepositoryInterface
         return $stm->execute();
     }
 
-    public function getForeignEntity (string $entityTable, EntityInterface $target) : ?EntityInterface
+    public function getForeignEntity (string $entityTable, string $className, EntityInterface $target) : ?EntityInterface
     {
         $thisTable = $this->getTableName();
+        $targetId = $target->getId();
 
-        $sql = 'SELECT * FROM '.$entityTable.' LEFT JOIN '.$thisTable.' ON '.$entityTable.'.id = '.$thisTable.'.'.$entityTable.'id WHERE '.$thisTable.'id = :targetID';
-        var_dump($sql);
+        $sql = 'SELECT * FROM '.$thisTable.' LEFT JOIN '.$entityTable.' ON '.$entityTable.'.id = '.$thisTable.'.'.$entityTable.'id WHERE '.$thisTable.'.id = :targetID';
+
         $stm = $this->pdo->prepare($sql);
-        $stm->bindParam(':targetID', $target->getId());
+        $stm->bindParam(':targetID', $targetId);
         $stm->execute();
         $row = $stm->fetch();
-        var_dump($row);
 
-        return $this->hydrator->hydrate(get_class($entity), $row);
+        return $this->hydrator->hydrate($className, $row);
     }
 }

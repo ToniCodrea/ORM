@@ -127,7 +127,7 @@ class FunTest extends TestCase
         //var_dump($user);
         $result = $quiz->save();
         $quiz->setUser($user);
-        var_dump($quiz->getUser());
+        $linkedUser = $quiz->getUser();
         $this->assertEquals(true, $result);
     }
 }
