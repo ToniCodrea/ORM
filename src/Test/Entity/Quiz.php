@@ -63,7 +63,7 @@ class Quiz extends AbstractEntity
 
     public function getUser () : ?EntityInterface
     {
-        return $this->getRepository()->getForeignEntity('user', User::class, $this);
+        return $this->getRepository()->getForeignEntity(User::class, $this);
     }
 
     public function getId()

@@ -74,6 +74,14 @@ abstract class AbstractRepository implements RepositoryInterface
         return strtolower($name[1]);
     }
 
+    public function getEntityTableName(string $className) : string
+    {
+        $name = array();
+        preg_match('/.*\\\\(.+)$/', $className, $name);
+
+        return strtolower($name[1]);
+    }
+
     public function find(int $id): ?EntityInterface
     {
 
@@ -232,8 +240,10 @@ abstract class AbstractRepository implements RepositoryInterface
         return $stm->execute();
     }
 
-    public function getForeignEntity (string $entityTable, string $className, EntityInterface $target) : ?EntityInterface
+    public function getForeignEntity (string $className, EntityInterface $target) : ?EntityInterface
     {
+
+        $entityTable = $this->getEntityTableName($className);
         $thisTable = $this->getTableName();
         $targetId = $target->getId();
 
