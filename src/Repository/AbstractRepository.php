@@ -201,7 +201,7 @@ abstract class AbstractRepository implements RepositoryInterface
         $stm = $this->pdo->prepare($sql);
         foreach ($data as $key => &$value) {
             if ($value) {
-                $stm->bindParam(':' . $key, $value);
+                $stm->bindValue(':' . $key, $value);
             }
         }
         if ($stm->execute()) {

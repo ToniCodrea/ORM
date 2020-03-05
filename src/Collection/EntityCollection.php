@@ -4,7 +4,7 @@
 namespace ReallyOrm\Collection;
 
 
-class EntityCollection
+class EntityCollection implements CollectionInterface
 {
 
 }
