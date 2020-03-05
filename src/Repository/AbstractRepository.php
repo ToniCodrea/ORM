@@ -262,7 +262,7 @@ abstract class AbstractRepository implements RepositoryInterface
         $thisTable = $this->getTableName();
         $targetId = $target->getId();
 
-        $sql = 'SELECT * FROM '.$thisTable.' RIGHT JOIN '.$entityTable.' ON '.$thisTable.'.id = '.$entityTable.'.'.$thisTable.'id WHERE '.$thisTable.'.id = :targetID';
+        $sql = 'SELECT id FROM '.$thisTable.' RIGHT JOIN '.$entityTable.' ON '.$thisTable.'.id = '.$entityTable.'.'.$thisTable.'id WHERE '.$thisTable.'.id = :targetID';
 
         $stm = $this->pdo->prepare($sql);
         $stm->bindParam(':targetID', $targetId);
