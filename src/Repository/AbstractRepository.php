@@ -111,8 +111,8 @@ abstract class AbstractRepository implements RepositoryInterface
         $sql = substr($sql, 0, -5);
         $sql .= ' LIMIT 1';
         $stm = $this->pdo->prepare($sql);
-        foreach ($filters as $fieldName => &$value) {
-            $stm->bindParam(':' . $fieldName, $value);
+        foreach ($filters as $fieldName => $value) {
+            $stm->bindValue(':' . $fieldName, $value);
         }
         //var_dump($sql);
         $stm->execute();
@@ -149,8 +149,8 @@ abstract class AbstractRepository implements RepositoryInterface
 
         $stm = $this->pdo->prepare($sql);
 
-        foreach ($filters as $fieldName => &$value) {
-            $stm->bindParam(':' . $fieldName, $value);
+        foreach ($filters as $fieldName => $value) {
+            $stm->bindValue(':' . $fieldName, $value);
         }
 
         $stm->bindParam(':size', $size);
