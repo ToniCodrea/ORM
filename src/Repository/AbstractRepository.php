@@ -261,7 +261,7 @@ abstract class AbstractRepository implements RepositoryInterface
         $entityTable = $this->getEntityTableName($className);
         $thisTable = $this->getTableName();
         $targetId = $target->getId();
-        $columns = $this->getColumns($target);
+        $columns = $this->getColumns($className);
         $sql = 'SELECT ';
         foreach ($columns as $key => $value) {
             $sql.= $entityTable.'.'.$value.' , ';
