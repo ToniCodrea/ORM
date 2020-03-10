@@ -261,8 +261,13 @@ abstract class AbstractRepository implements RepositoryInterface
         $entityTable = $this->getEntityTableName($className);
         $thisTable = $this->getTableName();
         $targetId = $target->getId();
-
-        $sql = 'SELECT ' .$thisTable. 'id FROM '.$thisTable.' RIGHT JOIN '.$entityTable.' ON '.$thisTable.'.id = '.$entityTable.'.'.$thisTable.'id WHERE '.$thisTable.'.id = :targetID';
+        $columns = $this->getColumns($target);
+        $sql = 'SELECT ';
+        foreach ($columns as $column) {
+            $sql.= $entityTable.'.'.$column.' , ';
+        }
+        $sql = substr($sql, 0, -3);
+        $sql = ' FROM '.$thisTable.' INNER JOIN '.$entityTable.' ON '.$thisTable.'.id = '.$entityTable.'.'.$thisTable.'id WHERE '.$thisTable.'.id = :targetID';
 
         $stm = $this->pdo->prepare($sql);
         $stm->bindParam(':targetID', $targetId);
@@ -270,5 +275,18 @@ abstract class AbstractRepository implements RepositoryInterface
         $row = $stm->fetchAll();
 
         return $this->hydrator->hydrateMany($className, $row);
+    }
+
+    public function getColumns(EntityInterface $entity) : array {
+        $reflection = new ReflectionClass($entity);
+        $properties = $reflection->getProperties();
+        $arr = array();
+        foreach ($properties as $property) {
+            $comment = $property->getDocComment();
+            if (preg_match('/\@ORM\s(\w+)/m', $comment, $match) === 1) {
+                $arr[] = $match[1];
+            }
+        }
+        return $arr;
     }
 }
