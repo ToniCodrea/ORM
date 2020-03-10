@@ -277,7 +277,7 @@ abstract class AbstractRepository implements RepositoryInterface
         return $this->hydrator->hydrateMany($className, $row);
     }
 
-    public function getColumns(EntityInterface $entity) : array {
+    public function getColumns($entity) : array {
         $reflection = new ReflectionClass($entity);
         $properties = $reflection->getProperties();
         $arr = array();
