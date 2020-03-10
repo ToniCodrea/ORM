@@ -267,7 +267,7 @@ abstract class AbstractRepository implements RepositoryInterface
             $sql.= $entityTable.'.'.$value.' , ';
         }
         $sql = substr($sql, 0, -3);
-        $sql = ' FROM '.$thisTable.' INNER JOIN '.$entityTable.' ON '.$thisTable.'.id = '.$entityTable.'.'.$thisTable.'id WHERE '.$thisTable.'.id = :targetID';
+        $sql .= ' FROM '.$thisTable.' INNER JOIN '.$entityTable.' ON '.$thisTable.'.id = '.$entityTable.'.'.$thisTable.'id WHERE '.$thisTable.'.id = :targetID';
 
         $stm = $this->pdo->prepare($sql);
         $stm->bindParam(':targetID', $targetId);
