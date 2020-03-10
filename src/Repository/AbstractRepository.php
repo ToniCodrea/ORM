@@ -263,8 +263,8 @@ abstract class AbstractRepository implements RepositoryInterface
         $targetId = $target->getId();
         $columns = $this->getColumns($target);
         $sql = 'SELECT ';
-        foreach ($columns as $column) {
-            $sql.= $entityTable.'.'.$column.' , ';
+        foreach ($columns as $key => $value) {
+            $sql.= $entityTable.'.'.$key.' , ';
         }
         $sql = substr($sql, 0, -3);
         $sql = ' FROM '.$thisTable.' INNER JOIN '.$entityTable.' ON '.$thisTable.'.id = '.$entityTable.'.'.$thisTable.'id WHERE '.$thisTable.'.id = :targetID';
