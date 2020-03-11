@@ -211,7 +211,7 @@ abstract class AbstractRepository implements RepositoryInterface
             }
         }
         $stm->execute();
-        if ($this->pdo->lastInsertId() == 0) {
+        if ($this->pdo->lastInsertId() != 0) {
             $this->hydrator->hydrateId($entity, $this->pdo->lastInsertId());
             return true;
         }
