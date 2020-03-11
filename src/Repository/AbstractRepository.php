@@ -132,8 +132,9 @@ abstract class AbstractRepository implements RepositoryInterface
         }
 
         $sql = substr($sql, 0, -5);
-        $sql .= ' ORDER BY ';
-
+        if (!empty($sorts)) {
+            $sql .= ' ORDER BY ';
+        }
         foreach ($sorts as $fieldName => $direction) {
             $dir = 'ASC';
             if (preg_match('/DESC/', $direction)) {
@@ -142,7 +143,9 @@ abstract class AbstractRepository implements RepositoryInterface
             $sql.= $fieldName . ' ' . $dir;
         }
 
-        $sql = substr($sql, 0, -3);
+        if (!empty($sorts)) {
+            $sql .= substr($sql, 0, -3);
+        }
         $sql .= ' LIMIT :size OFFSET :from';
 
         //var_dump($sql);
