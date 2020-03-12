@@ -124,16 +124,27 @@ abstract class AbstractRepository implements RepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findBy(array $filters, array $sorts, int $from, int $size): array
+    public function findBy(array $filters, array $sorts, int $from, int $size, string $search = null, string $searchColumn = null): array
     {
         $sql = 'SELECT * FROM '.$this->getTableName();
 
-        if ($filters) {
+        if ($filters || $search) {
             $sql .= ' WHERE ';
+        }
+
+        if ($filters) {
             foreach ($filters as $fieldName => $value) {
                 $sql .= $fieldName . ' = :' . $fieldName . ' AND ';
             }
             $sql = substr($sql, 0, -5);
+        }
+
+        if ($search) {
+            $search = '%'.$search.'%';
+            if ($filters) {
+                $sql .= ' AND ';
+            }
+            $sql.= $searchColumn.' LIKE :search';
         }
 
         if ($sorts) {
@@ -157,6 +168,10 @@ abstract class AbstractRepository implements RepositoryInterface
 
         foreach ($filters as $fieldName => $value) {
             $stm->bindValue(':' . $fieldName, $value);
+        }
+
+        if ($search) {
+            $stm->bindParam(':search', $search);
         }
 
         $stm->bindParam(':size', $size);
@@ -232,16 +247,15 @@ abstract class AbstractRepository implements RepositoryInterface
         return $stm->execute();
     }
 
-    public function setForeignId (EntityInterface $foreign, EntityInterface $target) : bool
+    public function setForeignID (int $uidFK, string $className, EntityInterface $target) : bool
     {
-        $foreign_table = $foreign->getTableName();
-        $uid_fk = $foreign->getId();
+        $foreign_table = $this->getEntityTableName($className);
         $uid = $this->hydrator->getId($target);
 
         $sql = 'UPDATE '.$this->getTableName().' SET '.$foreign_table.'id = :fkID WHERE '.$uid[0].' = :entityID';
 
         $stm = $this->pdo->prepare($sql);
-        $stm->bindParam(':fkID', $uid_fk);
+        $stm->bindParam(':fkID', $uidFK);
         $stm->bindParam(':entityID', $uid[1]);
 
         return $stm->execute();
@@ -300,5 +314,50 @@ abstract class AbstractRepository implements RepositoryInterface
             }
         }
         return $arr;
+    }
+
+    public function count (int $id = null, string $className = null, string $search = null, string $searchColumn = null, array $filters = []) {
+        $sql = 'SELECT COUNT(*) FROM '.$this->getTableName();
+
+        if ($id || $search || $filters) {
+            $sql .= ' WHERE ';
+        }
+
+        foreach ($filters as $fieldName => $value) {
+            $sql .= $fieldName .' = :' . $fieldName . ' AND ';
+        }
+
+        if ($filters) {
+            $sql = substr($sql, 0, -5);
+        }
+
+        if ($id) {
+            $sql .= $this->getEntityTableName($className).'id = :classID';
+        }
+
+        if ($search) {
+            $search = '%'.$search.'%';
+            if ($id) {
+                $sql .= ' AND ';
+            }
+            $sql .= $searchColumn.' LIKE :search';
+        }
+
+        $stm = $this->pdo->prepare($sql);
+
+        foreach ($filters as $fieldName => $value) {
+            $stm->bindValue(':' . $fieldName, $value);
+        }
+
+        if ($id) {
+            $stm->bindValue(':classID', $id);
+        }
+
+        if ($search) {
+            $stm->bindValue(':search', $search);
+        }
+        $stm->execute();
+
+        return $stm->fetch()['COUNT(*)'];
     }
 }
