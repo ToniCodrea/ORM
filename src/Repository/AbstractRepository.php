@@ -116,9 +116,12 @@ abstract class AbstractRepository implements RepositoryInterface
         }
         //var_dump($sql);
         $stm->execute();
-        $row = $stm->fetch();
-        //var_dump($row);
-        return $this->hydrator->hydrate($this->entityName, $row);
+        if ($row = $stm->fetch()) {
+            //var_dump($row);
+            return $this->hydrator->hydrate($this->entityName, $row);
+        }
+
+        return null;
     }
 
     /**
